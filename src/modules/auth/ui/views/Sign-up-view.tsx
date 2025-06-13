@@ -196,10 +196,10 @@ const Signupview = () => {
                             </div>
                         </form>
                     </Form>
-                    <div className="bg-radial from-purble-700 to-purple-900 relative hidden md:flex flex-col gay-y-4 items-center justify-center">
+                    <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gay-y-4 items-center justify-center">
                         <img src="/logo.svg " alt="logo" className="w-[92px] h-[92px]" />
-                        <p className="text-2xl font-semibold text-white">
-
+                        <p className="text-2xl font-semibold text-white gap-2">
+                            Learnova
                         </p>
                     </div>
                 </CardContent>
