@@ -1,4 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
+import DashboardNavbar from "@/modules/dashboard/ui/components/Dashboard-Navbar";
 import Dashboardsidebar from "@/modules/dashboard/ui/components/dashboard-sidebar";
 
 interface Props {
@@ -8,8 +9,9 @@ interface Props {
 const layout = ({ children }: Props) => {
     return (
         <SidebarProvider>
+            <Dashboardsidebar />
             <main className="flex flex-col h-screen w-screen bg-muted">
-                <Dashboardsidebar />
+                <DashboardNavbar />
                 {children}
             </main>
 
