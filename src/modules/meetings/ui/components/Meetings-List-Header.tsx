@@ -1,11 +1,28 @@
 "use client"
 import { Button } from '@/components/ui/button'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, XCircleIcon } from 'lucide-react'
 import NewMeetingDialog from './New-Meeting-DIalog'
 import { useState } from 'react'
+import { MeetingsSearchFilter } from './Meetings-Search-Filter'
+import { StatusFilter } from './Status-Filter'
+import { AgentIdFilter } from './Agent-Id-Filter'
+import { useMeetingsFilters } from '../../hooks/Use-Meetings-Filters'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const MeetingsListHeader = () => {
+    const [filters, setFilters] = useMeetingsFilters();
     const [isDialogOPen, setIsDialogOPen] = useState(false);
+
+    const isAnyFilterModified = !!filters.search || !!filters.status || !!filters.agentId;
+
+    const onClearFilters = () => {
+        setFilters({
+            search: "",
+            status: null,
+            agentId: "",
+            page: 1,
+        });
+    };
     return (
         <>
             <NewMeetingDialog open={isDialogOPen} onOpenChange={setIsDialogOPen} />
@@ -18,9 +35,20 @@ const MeetingsListHeader = () => {
                         New Meeting
                     </Button>
                 </div>
-                <div className='flex items-center gap-x-2 p-1'>
-
-                </div>
+                <ScrollArea>
+                    <div className='flex items-center gap-x-2 p-1'>
+                        <MeetingsSearchFilter />
+                        <StatusFilter />
+                        <AgentIdFilter />
+                        {isAnyFilterModified && (
+                            <Button variant='outline' onClick={onClearFilters}>
+                                <XCircleIcon className='size-4' />
+                                Clear Filters
+                            </Button>
+                        )}
+                    </div>
+                    <ScrollBar orientation='horizontal' />
+                </ScrollArea>
             </div>
         </>
     )
