@@ -11,6 +11,7 @@ import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { StreamVideo } from "@/lib/stream-video";
 import { NextRequest, NextResponse } from "next/server";
+import { inngest } from "@/inngest/client";
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return StreamVideo.verifyWebhook(body, signature);
@@ -121,6 +122,63 @@ export async function POST(req: NextRequest) {
         }
         const call = StreamVideo.video.call("default", meetingId);
         await call.end();
+    } else if (eventType === "call.session_ended") {
+        const event = payload as CallEndedEvent;
+        const meetingId = event.call.custom?.meetingId;
+
+        if (!meetingId) {
+            return NextResponse.json(
+                { error: "Missing meetingId" },
+                { status: 400 }
+            )
+        }
+
+        await db
+            .update(meetings)
+            .set({
+                status: "processing",
+                endedAt: new Date(),
+            })
+            .where(and(eq(meetings.id, meetingId), eq(meetings.status, "active")));
+
+    } else if (eventType === "call.transcription_ready") {
+        const event = payload as CallTranscriptionReadyEvent;
+        const meetingId = event.call_cid.split(":")[1];
+
+        const [updateMeeting] = await db
+            .update(meetings)
+            .set({
+                transcript_url: event.call_transcription.url,
+            })
+            .where(and(eq(meetings.id, meetingId)))
+            .returning();
+
+        if (!updateMeeting) {
+            return NextResponse.json(
+                { error: "Meeting not found" },
+                { status: 404 }
+            )
+        }
+
+        await inngest.send({
+            name: "meetings/processing",
+            data: {
+                meetingId: updateMeeting.id,
+                transcript_url: updateMeeting.transcript_url,
+            },
+        })
+
+    } else if (eventType === "call.recording_ready") {
+        const event = payload as CallRecordingReadyEvent;
+        const meetingId = event.call_cid.split(":")[1];
+
+        await db
+            .update(meetings)
+            .set({
+                recording_url: event.call_recording.url,
+            })
+            .where(and(eq(meetings.id, meetingId)))
+
     }
 
     return NextResponse.json({ status: "ok" })
