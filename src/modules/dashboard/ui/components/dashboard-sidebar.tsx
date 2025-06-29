@@ -18,6 +18,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import DashboardUserButton from "./Dashboard-UserButton"
+import { DashboardTrial } from "./Dashboard-Trial"
 
 
 const Dashboardsidebar = () => {
@@ -116,6 +117,9 @@ const Dashboardsidebar = () => {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="text-white">
+                <DashboardTrial />
+                <Separator className="opacity-10 text-purple-900" />
+                <DashboardTrial />
                 <DashboardUserButton />
             </SidebarFooter>
         </Sidebar>
